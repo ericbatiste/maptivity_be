@@ -60,7 +60,11 @@ module Api
           :start_time,
           :end_time,
           :route,
-          :distance
+          :distance,
+          :max_speed,
+          :average_speed,
+          :climbing,
+          :descending
         )
       end
     end
