@@ -1,7 +1,19 @@
-class API::V1::AuthController < ApplicationController
-  skip_before_action :authorize_request, only: [ :login ]
+class Api::V1::AuthController < ApplicationController
+  skip_before_action :authorize_request, only: [ :login, :signup ]
 
-  # POST /login
+  # POST /api/v1/signup
+  def signup
+    user = User.new(user_params)
+
+    if user.save
+      token = JsonWebToken.encode(user_id: user_id)
+      render json: { user: user, token: token }, status: :created_at
+    else
+      render json: { errors: user.errors.full_messages }, status: :unprocessable_entity
+    end
+  end
+
+  # POST /api/v1/login
   def login
     user = User.find_by(email: params[:email])
 
@@ -14,7 +26,7 @@ class API::V1::AuthController < ApplicationController
     end
   end
 
-  # POST /refresh
+  # POST /api/v1/refresh
   def refresh
     user = User.find_by(refresh_token: params[:refresh_token])
 
@@ -26,7 +38,7 @@ class API::V1::AuthController < ApplicationController
     end
   end
 
-  # DELETE /logout
+  # DELETE /api/v1/logout
   def logout
     current_user.revoke_refresh_token
     render json: { message: "Logged out successfully" }

@@ -1,20 +1,19 @@
-class API::V1::ActivitiesController < ApplicationController
+class Api::V1::ActivitiesController < ApplicationController
   before_action :set_activity, only: [ :show, :update, :destroy ]
-  before_action :set_user, only: [ :index, :create ]
 
-  # GET /api/v1/users/:id/activities
+  # GET /api/v1/activities
   def index
-    render json: @user.activities
+    render json: current_user.activities
   end
 
-  # GET /api/v1/users/:id/activities/:id
+  # GET /api/v1/activities/:id
   def show
     render json: @activity
   end
 
-  # POST /api/v1/users/:id/activities
+  # POST /api/v1/activities
   def create
-    activity = @user.activities.new(activity_params)
+    activity = current_user.activities.new(activity_params)
     if activity.save
       render json: activity, status: :created
     else
@@ -22,7 +21,7 @@ class API::V1::ActivitiesController < ApplicationController
     end
   end
 
-  # PATCH/PUT /api/v1/users/:id/activities/:id
+  # PATCH/PUT /api/v1/activities/:id
   def update
     if @activity.update(activity_params)
       render json: @activity
@@ -31,7 +30,7 @@ class API::V1::ActivitiesController < ApplicationController
     end
   end
 
-  # DELETE /api/v1/users/:id/activities/:id
+  # DELETE /api/v1/activities/:id
   def destroy
     @activity.destroy
     head :no_content
@@ -40,13 +39,8 @@ class API::V1::ActivitiesController < ApplicationController
   private
 
   def set_activity
-    @activity = @user.activities.find_by(id: params[:id])
+    @activity = current_user.activities.find_by(id: params[:id])
     render json: { error: "Activity not found." }, status: :not_found unless @activity
-  end
-
-  def set_user
-    @user = User.find_by(id: params[:user_id])
-    render json: { error: "User not found." }, status: :not_found unless @user
   end
 
   def activity_params
