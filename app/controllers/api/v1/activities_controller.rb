@@ -45,7 +45,6 @@ class Api::V1::ActivitiesController < ApplicationController
 
   def activity_params
     params.require(:activity).permit(
-      :user_id,
       :title,
       :designation,
       :notes,

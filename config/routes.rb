@@ -1,10 +1,14 @@
 Rails.application.routes.draw do
   namespace :api do
     namespace :v1 do
-      post "signup", do: "auth#signup"
-      post "login", do: "auth#login"
-      post "refresh", do: "auth#refresh"
-      delete "logout", do: "auth#logout"
+      resources :auth, only: [] do
+        collection do
+          post :signup
+          post :login
+          post :refresh
+          delete :logout
+        end
+      end
 
       resources :users, only: [ :show, :update, :destroy ]
 
