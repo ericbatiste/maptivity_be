@@ -30,6 +30,26 @@ threads threads_count, threads_count
 # Specifies the `port` that Puma will listen on to receive requests; default is 3000.
 port ENV.fetch("PORT", 3000)
 environment ENV.fetch("RAILS_ENV") { "development" }
+
+# Add socket binding for Elastic Beanstalk
+bind "unix:///var/run/puma/maptivity_be.sock"
+
+# Ensure proper socket permissions
+on_worker_boot do
+  require 'fileutils'
+  FileUtils.touch('/var/run/puma/maptivity_be.sock')
+  File.chmod(0777, '/var/run/puma/maptivity_be.sock')
+end
+
+# Clean up socket on shutdown
+on_worker_shutdown do
+  require 'fileutils'
+  FileUtils.rm_f('/var/run/puma/maptivity_be.sock') if File.exist?('/var/run/puma/maptivity_be.sock')
+end
+
+# Improve memory usage
+preload_app!
+
 # Allow puma to be restarted by `bin/rails restart` command.
 plugin :tmp_restart
 
