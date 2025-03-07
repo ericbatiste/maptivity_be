@@ -28,7 +28,7 @@ threads_count = ENV.fetch("RAILS_MAX_THREADS", 3)
 threads threads_count, threads_count
 
 # Set the correct environment for Elastic Beanstalk (defaulting to production)
-environment ENV.fetch("RAILS_ENV") { "production" }
+environment ENV.fetch("RAILS_ENV", "production")
 
 # This is critical - explicitly tell Puma where to find your app
 directory '/var/app/current'
