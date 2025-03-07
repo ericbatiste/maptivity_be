@@ -32,19 +32,19 @@ port ENV.fetch("PORT", 3000)
 environment ENV.fetch("RAILS_ENV") { "development" }
 
 # Add socket binding for Elastic Beanstalk
-bind "unix:///var/run/puma/maptivity_be.sock"
+bind "unix:///var/run/puma/my_app.sock"
 
 # Ensure proper socket permissions
 on_worker_boot do
   require 'fileutils'
-  FileUtils.touch('/var/run/puma/maptivity_be.sock')
-  File.chmod(0777, '/var/run/puma/maptivity_be.sock')
+  FileUtils.touch('/var/run/puma/my_app.sock')
+  File.chmod(0777, '/var/run/puma/my_app.sock')
 end
 
 # Clean up socket on shutdown
 on_worker_shutdown do
   require 'fileutils'
-  FileUtils.rm_f('/var/run/puma/maptivity_be.sock') if File.exist?('/var/run/puma/maptivity_be.sock')
+  FileUtils.rm_f('/var/run/puma/my_app.sock') if File.exist?('/var/run/puma/my_app.sock')
 end
 
 # Improve memory usage
