@@ -29,14 +29,29 @@ threads threads_count, threads_count
 
 # Specifies the `port` that Puma will listen on to receive requests; default is 3000.
 port ENV.fetch("PORT", 3000)
-environment ENV.fetch("RAILS_ENV") { "development" }
+
+# Set the environment (production for Elastic Beanstalk)
+environment ENV.fetch("RAILS_ENV") { "production" }
 
 # Add socket binding for Elastic Beanstalk
 bind "unix:///var/run/puma/my_app.sock"
 
-# Ensure proper socket permissions
+# Set the application directory (required to find config.ru)
+directory '/var/app/current'
+
+# Tell Puma to use config.ru as the default rackup file
+rackup '/var/app/current/config.ru'
+
+# Improve memory usage
+preload_app!
+
+# Add a single worker to handle socket file
+workers 1
+
+# Ensure proper socket permissions (now will run because we have a worker)
 on_worker_boot do
   require 'fileutils'
+  FileUtils.mkdir_p('/var/run/puma')
   FileUtils.touch('/var/run/puma/my_app.sock')
   File.chmod(0777, '/var/run/puma/my_app.sock')
 end
@@ -46,9 +61,6 @@ on_worker_shutdown do
   require 'fileutils'
   FileUtils.rm_f('/var/run/puma/my_app.sock') if File.exist?('/var/run/puma/my_app.sock')
 end
-
-# Improve memory usage
-preload_app!
 
 # Allow puma to be restarted by `bin/rails restart` command.
 plugin :tmp_restart
