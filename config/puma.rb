@@ -27,23 +27,17 @@
 threads_count = ENV.fetch("RAILS_MAX_THREADS", 3)
 threads threads_count, threads_count
 
-# Specifies the `port` that Puma will listen on to receive requests; default is 3000.
-port ENV.fetch("PORT", 3000)
-
-# Set the environment (production for Elastic Beanstalk)
+# Set the correct environment for Elastic Beanstalk (defaulting to production)
 environment ENV.fetch("RAILS_ENV") { "production" }
+
+# This is critical - explicitly tell Puma where to find your app
+directory '/var/app/current'
+
+# This is also critical - tell Puma to use your config.ru file
+rackup '/var/app/current/config.ru'
 
 # Add socket binding for Elastic Beanstalk
 bind "unix:///var/run/puma/my_app.sock"
-
-# Set the application directory (required to find config.ru)
-directory '/var/app/current'
-
-# Tell Puma to use config.ru as the default rackup file
-rackup '/var/app/current/config.ru'
-
-# Improve memory usage
-preload_app!
 
 # Add a single worker to handle socket file
 workers 1
@@ -62,12 +56,14 @@ on_worker_shutdown do
   FileUtils.rm_f('/var/run/puma/my_app.sock') if File.exist?('/var/run/puma/my_app.sock')
 end
 
+# Preload the application for better performance
+preload_app!
+
 # Allow puma to be restarted by `bin/rails restart` command.
 plugin :tmp_restart
 
 # Run the Solid Queue supervisor inside of Puma for single-server deployments
 plugin :solid_queue if ENV["SOLID_QUEUE_IN_PUMA"]
 
-# Specify the PID file. Defaults to tmp/pids/server.pid in development.
-# In other environments, only set the PID file if requested.
+# Specify the PID file if requested
 pidfile ENV["PIDFILE"] if ENV["PIDFILE"]
