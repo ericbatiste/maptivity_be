@@ -34,12 +34,6 @@ preload_app!
 # Bind to the specified port (Elastic Beanstalk uses the PORT environment variable)
 bind "tcp://0.0.0.0:#{ENV.fetch('PORT', 3000)}"
 
-# Specify the environment (defaults to production)
-rails_env = ENV["RAILS_ENV"] || "production"
-
-# Daemonize Puma in production (runs in the background)
-daemonize true if rails_env == "production"
-
 plugin :tmp_restart
 
 # Run the Solid Queue supervisor if enabled
