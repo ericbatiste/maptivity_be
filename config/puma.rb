@@ -27,42 +27,27 @@
 threads_count = ENV.fetch("RAILS_MAX_THREADS", 3)
 threads threads_count, threads_count
 
-# Set the correct environment for Elastic Beanstalk (defaulting to production)
 environment ENV.fetch("RAILS_ENV", "production")
-
-# This is critical - explicitly tell Puma where to find your app
 directory '/var/app/current'
-
-# This is also critical - tell Puma to use your config.ru file
 rackup '/var/app/current/config.ru'
 
-# Add socket binding for Elastic Beanstalk
-bind "unix:///var/run/puma/my_app.sock"
+# Create socket directory before binding
+require 'fileutils'
+FileUtils.mkdir_p('/var/run/puma')
 
-# Add a single worker to handle socket file
+bind "unix:///var/run/puma/my_app.sock"
 workers 1
 
-# Ensure proper socket permissions (now will run because we have a worker)
-on_worker_boot do
-  require 'fileutils'
-  FileUtils.mkdir_p('/var/run/puma')
-  FileUtils.touch('/var/run/puma/my_app.sock')
-  File.chmod(0777, '/var/run/puma/my_app.sock')
-end
-
-# Clean up socket on shutdown
-on_worker_shutdown do
-  require 'fileutils'
-  FileUtils.rm_f('/var/run/puma/my_app.sock') if File.exist?('/var/run/puma/my_app.sock')
-end
-
-# Preload the application for better performance
 preload_app!
 
-# Allow puma to be restarted by `bin/rails restart` command.
+# Make sure socket has proper permissions when starting
+on_worker_boot do
+  FileUtils.chmod(0777, '/var/run/puma/my_app.sock')
+end
+
 plugin :tmp_restart
 
-# Run the Solid Queue supervisor inside of Puma for single-server deployments
+# Run the Solid Queue supervisor if enabled
 plugin :solid_queue if ENV["SOLID_QUEUE_IN_PUMA"]
 
 # Specify the PID file if requested
