@@ -24,20 +24,25 @@
 # Any libraries that use a connection pool or another resource pool should
 # be configured to provide at least as many connections as the number of
 # threads. This includes Active Record's `pool` parameter in `database.yml`.
-workers ENV.fetch("WEB_CONCURRENCY", 2)
-threads_count = ENV.fetch("RAILS_MAX_THREADS", 5)
-threads threads_count, threads_count
+workers Integer(ENV.fetch("WEB_CONCURRENCY") { 2 })
+max_threads_count = Integer(ENV.fetch("RAILS_MAX_THREADS") { 5 })
+min_threads_count = Integer(ENV.fetch("RAILS_MIN_THREADS") { max_threads_count })
+threads min_threads_count, max_threads_count
+
+preload_app!
 
 port ENV.fetch("PORT") { 3000 }
 
-environment ENV.fetch("RAILS_ENV") { "production" }
+environment ENV.fetch("RAILS_ENV") { "development" }
 
-bind "unix:///var/run/puma/my_app.sock"
+on_worker_boot do
+  ActiveRecord::Base.establish_connection if defined?(ActiveRecord)
+end
 
 plugin :tmp_restart
 
-# Run the Solid Queue supervisor if enabled
-# plugin :solid_queue if ENV["SOLID_QUEUE_IN_PUMA"]
+Run the Solid Queue supervisor if enabled
+plugin :solid_queue if ENV["SOLID_QUEUE_IN_PUMA"]
 
-# Specify the PID file if requested
-# pidfile ENV["PIDFILE"] if ENV["PIDFILE"]
+Specify the PID file if requested
+pidfile ENV["PIDFILE"] if ENV["PIDFILE"]

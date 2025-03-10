@@ -4,8 +4,6 @@ source "https://rubygems.org"
 gem "rails", "~> 8.0.1"
 # Use postgresql as the database for Active Record
 gem "pg", "~> 1.1"
-gem "aws-sdk-s3", require: false
-gem "net-smtp", "~> 0.5.0"
 # Use the Puma web server [https://github.com/puma/puma]
 gem "puma", ">= 5.0"
 # Build JSON APIs with ease [https://github.com/rails/jbuilder]
@@ -38,7 +36,6 @@ gem "thruster", require: false
 
 # Use Rack CORS for handling Cross-Origin Resource Sharing (CORS), making cross-origin Ajax possible
 # gem "rack-cors"
-gem "bundler", "~> 2.6.2"
 
 group :development, :test do
   gem "dotenv-rails"
