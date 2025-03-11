@@ -41,8 +41,8 @@ end
 
 plugin :tmp_restart
 
-Run the Solid Queue supervisor if enabled
+# Run the Solid Queue supervisor if enabled
 plugin :solid_queue if ENV["SOLID_QUEUE_IN_PUMA"]
 
-Specify the PID file if requested
+# Specify the PID file if requested
 pidfile ENV["PIDFILE"] if ENV["PIDFILE"]
